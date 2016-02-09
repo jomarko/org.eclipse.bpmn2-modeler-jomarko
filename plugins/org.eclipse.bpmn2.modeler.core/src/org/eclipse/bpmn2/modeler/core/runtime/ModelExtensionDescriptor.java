@@ -739,7 +739,7 @@ public class ModelExtensionDescriptor extends BaseRuntimeExtensionDescriptor {
 		if (adapter!=null) {
 			// See https://issues.jboss.org/browse/SWITCHYARD-2484
 			adapter.setResource(resource);
-			adapter.setProperty(this.getClass(), this);
+			adapter.setProperty(ModelExtensionDescriptor.class, this);
 			if (description!=null)
 				adapter.setProperty(ExtendedPropertiesAdapter.LONG_DESCRIPTION, description);
 		}

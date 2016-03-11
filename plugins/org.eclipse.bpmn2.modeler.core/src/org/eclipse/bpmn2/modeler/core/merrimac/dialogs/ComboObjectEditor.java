@@ -276,12 +276,26 @@ public class ComboObjectEditor extends MultivalueObjectEditor {
 		return v;
 	}
 
+	/**
+	 * @deprecated
+	 * @return
+	 */
 	public String getTextValue() {
 		ExtendedPropertiesAdapter adapter = ExtendedPropertiesAdapter.adapt(object);
 		if (adapter!=null) {
 			return adapter.getFeatureDescriptor(feature).getTextValue();
 		}
 		return getValue().toString();
+	}
+	
+	public String getChoiceString(Object value) {
+		if (value==null)
+			return "";
+		ExtendedPropertiesAdapter adapter = ExtendedPropertiesAdapter.adapt(object);
+		if (adapter!=null) {
+			return adapter.getFeatureDescriptor(feature).getChoiceString(value);
+		}
+		return value.toString();
 	}
 	
 	protected void fillCombo() {
@@ -291,7 +305,9 @@ public class ComboObjectEditor extends MultivalueObjectEditor {
 				comboViewer.getCombo().setRedraw(false);
 				Object oldValue =  getValue();
 				String oldTextValue = getTextValue();
-		
+//System.out.println("ComboObjectEditor: "+getLabel().getText()+"\n  old value="+oldTextValue+"\n  "+oldValue+"\n");
+//getChoiceString(oldValue);
+				
 				while (comboViewer.getElementAt(0) != null)
 					comboViewer.remove(comboViewer.getElementAt(0));
 				

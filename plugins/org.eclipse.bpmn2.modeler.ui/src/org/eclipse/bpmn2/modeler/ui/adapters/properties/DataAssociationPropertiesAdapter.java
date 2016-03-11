@@ -18,6 +18,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.eclipse.bpmn2.Activity;
+import org.eclipse.bpmn2.BaseElement;
 import org.eclipse.bpmn2.Bpmn2Package;
 import org.eclipse.bpmn2.CatchEvent;
 import org.eclipse.bpmn2.DataAssociation;
@@ -33,8 +34,10 @@ import org.eclipse.bpmn2.DocumentRoot;
 import org.eclipse.bpmn2.Event;
 import org.eclipse.bpmn2.EventDefinition;
 import org.eclipse.bpmn2.FlowElementsContainer;
+import org.eclipse.bpmn2.InputOutputSpecification;
 import org.eclipse.bpmn2.ItemAwareElement;
 import org.eclipse.bpmn2.ItemDefinition;
+import org.eclipse.bpmn2.MultiInstanceLoopCharacteristics;
 import org.eclipse.bpmn2.Process;
 import org.eclipse.bpmn2.Property;
 import org.eclipse.bpmn2.RootElement;
@@ -158,6 +161,14 @@ public class DataAssociationPropertiesAdapter extends ExtendedPropertiesAdapter<
 			}
 			super.setChoiceOfValues(values);
 			return super.getChoiceOfValues();
+		}
+		
+		@Override
+		public String getChoiceString(Object value) {
+			if (value instanceof BaseElement) {
+				return getContextText((BaseElement)value) + super.getChoiceString(value);
+			}
+			return super.getChoiceString(value);
 		}
 		
 		@Override
@@ -446,5 +457,27 @@ public class DataAssociationPropertiesAdapter extends ExtendedPropertiesAdapter<
 				FeatureSupport.updateConnection(diagramEditor.getDiagramTypeProvider().getFeatureProvider(), connection);
 			}
 		}
+	}
+
+	public static String getContextText(BaseElement element) {
+		// TODO: add CONTEXT_TEXT to Data Association inputs and outputs
+//		if (element!=null) {
+//			EObject container = element.eContainer();
+//			if (container instanceof InputOutputSpecification) {
+//				container = container.eContainer();
+//			}
+//			if (container instanceof MultiInstanceLoopCharacteristics) {
+//				return "MI Input Parameter/";
+//			}
+//			else if (container instanceof FlowElementsContainer) {
+//				FlowElementsContainer fec = (FlowElementsContainer) container;
+//				return getContextText(fec) + ExtendedPropertiesProvider.getTextValue(fec) + "/";
+//			}
+//			else if (container instanceof Activity) {
+//				Activity a = (Activity) container;
+//				return a.getName() + "/";
+//			}
+//		}
+		return "";
 	}
 }

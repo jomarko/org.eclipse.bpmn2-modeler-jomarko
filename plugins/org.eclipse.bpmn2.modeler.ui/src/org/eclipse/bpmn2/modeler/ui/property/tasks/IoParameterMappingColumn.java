@@ -27,6 +27,7 @@ import org.eclipse.bpmn2.ItemAwareElement;
 import org.eclipse.bpmn2.ThrowEvent;
 import org.eclipse.bpmn2.modeler.core.adapters.ExtendedPropertiesProvider;
 import org.eclipse.bpmn2.modeler.core.merrimac.clad.TableColumn;
+import org.eclipse.bpmn2.modeler.ui.adapters.properties.DataAssociationPropertiesAdapter;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
@@ -65,6 +66,8 @@ public class IoParameterMappingColumn extends TableColumn {
 						text = ""; //$NON-NLS-1$
 					else
 						text += ", "; //$NON-NLS-1$
+					// TODO: add CONTEXT_TEXT to Properties
+//					text += DataAssociationPropertiesAdapter.getContextText(e) + ExtendedPropertiesProvider.getTextValue(e);
 					text += ExtendedPropertiesProvider.getTextValue(e);
 				}
 			else {
@@ -97,7 +100,7 @@ public class IoParameterMappingColumn extends TableColumn {
 		}
 		return result==null ? "" : result; //$NON-NLS-1$
 	}
-
+	
 	private FormalExpression getTargetExpression(DataAssociation da, Assignment assign) {
 		return (FormalExpression) ((da instanceof DataInputAssociation) ? assign.getFrom() : assign.getTo());
 	}

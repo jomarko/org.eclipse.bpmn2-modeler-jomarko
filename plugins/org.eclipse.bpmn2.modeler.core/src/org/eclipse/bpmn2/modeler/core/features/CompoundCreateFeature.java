@@ -186,6 +186,7 @@ public class CompoundCreateFeature<CONTEXT extends IContext>
 					if (replace) {
 						Object bo = BusinessObjectUtil.getFirstBaseElement(pe);
 						pictogramElements.add(pe);
+						addPictogramElement(pe);
 						businessObjects.add(bo);
 						String id = fp.getProperty(ToolPaletteDescriptor.TOOLPART_ID);
 						if (id!=null) {
@@ -438,7 +439,6 @@ public class CompoundCreateFeature<CONTEXT extends IContext>
 
 	@Override
 	public List<PictogramElement> getPictogramElements() {
-		// TODO Auto-generated method stub
 		List<PictogramElement> pes = (List<PictogramElement>) context.getProperty(GraphitiConstants.PICTOGRAM_ELEMENTS);
 		return pes;
 	}
@@ -446,7 +446,7 @@ public class CompoundCreateFeature<CONTEXT extends IContext>
 	@Override
 	public void addPictogramElement(PictogramElement pe) {
 		List<PictogramElement> pes = (List<PictogramElement>) context.getProperty(GraphitiConstants.PICTOGRAM_ELEMENTS);
-		if (pes!=null) {
+		if (pes!=null && !pes.contains(pe)) {
 			pes.add(pe);
 		}
 	}

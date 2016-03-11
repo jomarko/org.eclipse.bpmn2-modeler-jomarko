@@ -24,4 +24,5 @@ public interface IConstants {
 	public final String ICON_UP_20 = "20/up.png"; //$NON-NLS-1$
 	public final String ICON_PROPERTIES_16 = "org.eclipse.bpmn2.modeler.icons." + "properties" + ".16"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	public final String ICON_INFO_16 = "org.eclipse.bpmn2.modeler.icons." + "info" + ".16"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	public final String ICON_EXPAND_20 = "20/expand.jpg"; //$NON-NLS-1$
 }

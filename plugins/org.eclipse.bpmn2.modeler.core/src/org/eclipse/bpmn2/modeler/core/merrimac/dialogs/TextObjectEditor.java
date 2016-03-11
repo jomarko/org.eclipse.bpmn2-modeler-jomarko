@@ -13,18 +13,26 @@
 
 package org.eclipse.bpmn2.modeler.core.merrimac.dialogs;
 
+import org.eclipse.bpmn2.modeler.core.Activator;
+import org.eclipse.bpmn2.modeler.core.IConstants;
 import org.eclipse.bpmn2.modeler.core.adapters.ExtendedPropertiesAdapter;
+import org.eclipse.bpmn2.modeler.core.adapters.ExtendedPropertiesProvider;
 import org.eclipse.bpmn2.modeler.core.merrimac.clad.AbstractDetailComposite;
 import org.eclipse.bpmn2.modeler.core.preferences.Bpmn2Preferences;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
@@ -38,6 +46,7 @@ public class TextObjectEditor extends ObjectEditor {
 	protected Text text;
 	protected boolean multiLine = false;
 	protected boolean testMultiLine = true;
+	protected Button expandButton;
 
 	/**
 	 * @param parent
@@ -52,7 +61,7 @@ public class TextObjectEditor extends ObjectEditor {
 	 * @see org.eclipse.bpmn2.modeler.ui.property.editors.ObjectEditor#createControl(org.eclipse.swt.widgets.Composite, java.lang.String)
 	 */
 	@Override
-	protected Control createControl(Composite composite, String label, int style) {
+	protected Control createControl(final Composite composite, final String label, int style) {
 		createLabel(composite,label);
 
 		// verify if multiline mode was requested...
@@ -67,9 +76,27 @@ public class TextObjectEditor extends ObjectEditor {
 		
 		text = getToolkit().createText(composite, "", style | SWT.BORDER); //$NON-NLS-1$
 
-		GridData data = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
+		GridData data;
 		if (multiLine) {
+			expandButton = getToolkit().createButton(composite, null, SWT.PUSH);
+			expandButton.setImage( Activator.getDefault().getImage(IConstants.ICON_EXPAND_20));
+			expandButton.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					Dialog dialog = createTextInputDialog();
+					showTextInputDialog(dialog);
+				}
+			});
+			data = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1);
+			data.horizontalIndent = 0;
+			data.verticalIndent = 0;
+			expandButton.setLayoutData(data);
+
+			data = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 			data.heightHint = 100;
+		}
+		else {
+			data = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
 		}
 		text.setLayoutData(data);
 
@@ -103,6 +130,31 @@ public class TextObjectEditor extends ObjectEditor {
 		return text;
 	}
 
+	protected Dialog createTextInputDialog() {
+		String initialValue = ExtendedPropertiesProvider.getTextValue(object,feature);
+		String title = this.getLabel() == null ? null : this.getLabel().getText();
+		if (title==null || title.isEmpty()) {
+			title = ExtendedPropertiesProvider.getLabel(object)
+					+ " " + ExtendedPropertiesProvider.getLabel(object, feature);
+		}
+		MultiLineStyledTextInputDialog dialog = new MultiLineStyledTextInputDialog(
+				this.getControl().getShell(),
+				title,
+				null,
+				initialValue,
+				null);
+		return dialog;
+	}
+	
+	protected int showTextInputDialog(Dialog dialog) {
+		int result = dialog.open();
+		if (result==Window.OK){
+			if (dialog instanceof StyledTextInputDialog)
+			setValue(((StyledTextInputDialog)dialog).getValue());
+		}
+		return result;
+	}
+	
 	public void setMultiLine(boolean multiLine) {
 		testMultiLine = false;
 		this.multiLine = multiLine;
@@ -218,6 +270,9 @@ public class TextObjectEditor extends ObjectEditor {
 		GridData data = (GridData)text.getLayoutData();
 		data.exclude = !visible;
 		text.getParent().redraw();
+		if (expandButton!=null && !expandButton.isDisposed()) {
+			expandButton.setVisible(visible);
+		}
 	}
 
 	@Override
@@ -226,6 +281,10 @@ public class TextObjectEditor extends ObjectEditor {
 		if (text!=null && !text.isDisposed()) {
 			text.dispose();
 			text = null;
+		}
+		if (expandButton!=null && !expandButton.isDisposed()) {
+			expandButton.dispose();
+			expandButton = null;
 		}
 	}
 

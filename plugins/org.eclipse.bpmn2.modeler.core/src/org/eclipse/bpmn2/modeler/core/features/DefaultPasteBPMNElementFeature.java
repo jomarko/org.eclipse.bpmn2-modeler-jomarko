@@ -37,6 +37,8 @@ import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.bpmn2.di.BPMNDiagram;
 import org.eclipse.bpmn2.di.BPMNEdge;
 import org.eclipse.bpmn2.di.BPMNShape;
+import org.eclipse.bpmn2.modeler.core.adapters.ExtendedPropertiesAdapter;
+import org.eclipse.bpmn2.modeler.core.adapters.FeatureDescriptor;
 import org.eclipse.bpmn2.modeler.core.di.DIUtils;
 import org.eclipse.bpmn2.modeler.core.model.Bpmn2ModelerFactory;
 import org.eclipse.bpmn2.modeler.core.utils.AnchorUtil;
@@ -284,6 +286,9 @@ public class DefaultPasteBPMNElementFeature extends AbstractPasteFeature {
 
 	public <T extends EObject> T copyEObject(T eObject) {
 		Copier copier = new Copier() {
+			
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected EObject createCopy(EObject eObject) {
 				EClass eClass = getTarget(eObject.eClass());
@@ -307,6 +312,15 @@ public class DefaultPasteBPMNElementFeature extends AbstractPasteFeature {
 			if (name==null || name.isEmpty())
 				t.eSet(f, null);
 		}
+		
+		// add metadata to the ExtendedPropertiesAdapter for extension features
+		ExtendedPropertiesAdapter<T> oldAdapter = ExtendedPropertiesAdapter.adapt(eObject);
+		ExtendedPropertiesAdapter<T> newAdapter = ExtendedPropertiesAdapter.adapt(result);
+		for (EStructuralFeature oldFeature : oldAdapter.getExtensionFeatures()) {
+			FeatureDescriptor fd = newAdapter.getFeatureDescriptor(oldFeature);
+			fd.setProperty(ExtendedPropertiesAdapter.IS_EXTENSION_FEATURE, Boolean.TRUE);
+		}
+		
 		return t;
 	}
 

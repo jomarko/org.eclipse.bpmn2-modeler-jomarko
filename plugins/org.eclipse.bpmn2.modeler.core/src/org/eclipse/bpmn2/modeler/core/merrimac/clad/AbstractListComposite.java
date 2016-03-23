@@ -32,6 +32,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.BasicFeatureMap;
 import org.eclipse.emf.ecore.util.FeatureMap;
 import org.eclipse.emf.ecore.util.FeatureMap.Entry;
@@ -226,7 +227,8 @@ public abstract class AbstractListComposite extends ListAndDetailCompositeBase i
 			}
 			// FIXME:
 			// add the extension attributes and elements
-			ExtendedPropertiesAdapter adapter = ExtendedPropertiesAdapter.adapt(object.eResource(), listItemClass);
+			Resource resource = ExtendedPropertiesAdapter.getResource(object);
+			ExtendedPropertiesAdapter adapter = ExtendedPropertiesAdapter.adapt(resource, listItemClass);
 			if (adapter!=null) {
 				List<EStructuralFeature> features = adapter.getFeatures();
 				for (EStructuralFeature f : features) {

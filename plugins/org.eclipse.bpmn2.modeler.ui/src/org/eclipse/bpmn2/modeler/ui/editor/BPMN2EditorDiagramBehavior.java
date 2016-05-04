@@ -10,21 +10,14 @@
  ******************************************************************************/
 package org.eclipse.bpmn2.modeler.ui.editor;
 
-import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.transaction.NotificationFilter;
-import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.gef.ContextMenuProvider;
-import org.eclipse.graphiti.mm.pictograms.ChopboxAnchor;
-import org.eclipse.graphiti.ui.editor.DefaultRefreshBehavior;
 import org.eclipse.graphiti.ui.editor.DiagramEditorContextMenuProvider;
-import org.eclipse.graphiti.ui.internal.editor.DiagramChangeListener;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 
 public class BPMN2EditorDiagramBehavior extends DefaultBPMN2EditorDiagramBehavior {
 
 	BPMN2Editor bpmn2Editor;
-	private DefaultRefreshBehavior refreshBehavior;
 	
 	public BPMN2EditorDiagramBehavior(BPMN2Editor bpmn2Editor) {
 		super(bpmn2Editor);
@@ -62,43 +55,4 @@ public class BPMN2EditorDiagramBehavior extends DefaultBPMN2EditorDiagramBehavio
 			}
 		};
 	}
-	
-	DiagramChangeListener diagramChangeListener;
-
-	@Override
-	protected void registerDiagramResourceSetListener() {
-		diagramChangeListener = new DiagramChangeListener(this) {
-
-			public NotificationFilter getFilter() {
-				return new NotificationFilter.Custom() {
-
-					@Override
-					public boolean matches(Notification notification) {
-						Object notifier = notification.getNotifier();
-						if (notifier instanceof ChopboxAnchor) {
-							ChopboxAnchor anchor = (ChopboxAnchor) notifier;
-							if (anchor.getParent()==null)
-								return false;
-						}
-						return !notification.isTouch();
-					}
-					
-				};
-			}
-
-		};
-		TransactionalEditingDomain eDomain = getEditingDomain();
-		eDomain.addResourceSetListener(diagramChangeListener);
-	}
-	
-	protected void unregisterDiagramResourceSetListener() {
-		if (diagramChangeListener != null) {
-			diagramChangeListener.stopListening();
-			TransactionalEditingDomain editingDomain = getEditingDomain();
-			if (editingDomain != null) {
-				editingDomain.removeResourceSetListener(diagramChangeListener);
-			}
-		}
-	}
-
 }

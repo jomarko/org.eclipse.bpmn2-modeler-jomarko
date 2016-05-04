@@ -29,6 +29,7 @@ import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.ComboObjectEditor;
 import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.DelegatingObjectEditor;
 import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.FeatureListObjectEditor;
 import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.FloatObjectEditor;
+import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.IDEditor;
 import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.IntObjectEditor;
 import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.ObjectEditor;
 import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.ReadonlyTextObjectEditor;
@@ -451,10 +452,14 @@ public abstract class AbstractDetailComposite extends ListAndDetailCompositeBase
 				editor.createControl(parent,label);
 			}
 			else if (String.class.equals(eTypeClass)) {
-				ObjectEditor editor = new TextObjectEditor(this,object,attribute);
+				ObjectEditor editor;
+				if (attribute.getName().equals("id")) { //$NON-NLS-1$
+					editor = new IDEditor(this,object,attribute);
+				}
+				else {
+					editor = new TextObjectEditor(this,object,attribute);
+				}
 				editor.createControl(parent,label);
-				if (attribute.getName().equals("id")) //$NON-NLS-1$
-					editor.setEditable(false);
 			} else if (Boolean.class.equals(eTypeClass) ||
 					boolean.class.equals(eTypeClass)
 			) {

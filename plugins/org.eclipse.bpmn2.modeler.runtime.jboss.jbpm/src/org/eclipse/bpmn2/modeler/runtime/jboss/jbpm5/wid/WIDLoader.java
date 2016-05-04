@@ -117,8 +117,10 @@ public class WIDLoader {
 		HashMap<String, WorkItemDefinition> widMap = WIDParser.parse(content);
 		for (WorkItemDefinition wid : widMap.values()) {
 			String icon = wid.getIcon();
-			getProjectFileIcon(file, icon);
-			((WorkItemDefinitionImpl)wid).setDefinitionFile(file.getFullPath().toFile());
+			if (icon!=null && !icon.isEmpty()) {
+				getProjectFileIcon(file, icon);
+				((WorkItemDefinitionImpl)wid).setDefinitionFile(file.getFullPath().toFile());
+			}
 		}
 		projectWIDs.putAll(widMap);
 	}

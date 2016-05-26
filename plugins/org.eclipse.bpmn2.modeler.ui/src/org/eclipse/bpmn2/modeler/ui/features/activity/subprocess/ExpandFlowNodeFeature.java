@@ -20,6 +20,7 @@ import org.eclipse.bpmn2.FlowNode;
 import org.eclipse.bpmn2.di.BPMNDiagram;
 import org.eclipse.bpmn2.di.BPMNShape;
 import org.eclipse.bpmn2.modeler.core.di.DIUtils;
+import org.eclipse.bpmn2.modeler.core.features.GraphitiConstants;
 import org.eclipse.bpmn2.modeler.core.utils.BusinessObjectUtil;
 import org.eclipse.bpmn2.modeler.core.utils.FeatureSupport;
 import org.eclipse.bpmn2.modeler.ui.ImageProvider;
@@ -46,6 +47,7 @@ public class ExpandFlowNodeFeature extends ShowDiagramPageFeature {
 	
 	private String name = NAME;
 	private String description = DESCRIPTION;
+	private boolean hasDoneChanges = false;
 	
 	public ExpandFlowNodeFeature(IFeatureProvider fp) {
 	    super(fp);
@@ -109,74 +111,82 @@ public class ExpandFlowNodeFeature extends ShowDiagramPageFeature {
 				try {
 					BPMNDiagram bpmnDiagram = DIUtils.findBPMNDiagram(containerShape);
 					BPMNShape bpmnShape = DIUtils.findBPMNShape(bpmnDiagram, flowNode);
-					if (!bpmnShape.isIsExpanded()) {
-						GraphicsAlgorithm ga = containerShape.getGraphicsAlgorithm();
-						FeatureSupport.updateCollapsedSize(containerShape);
-						
-						// SubProcess is collapsed - resize to previously
-						// expanded size or minimum size such that all children
-						// are visible
-						// NOTE: children tasks will be set visible in LayoutExpandableActivityFeature
 
-						bpmnShape.setIsExpanded(true);
+					GraphicsAlgorithm ga = containerShape.getGraphicsAlgorithm();
+					FeatureSupport.updateCollapsedSize(containerShape);
+					
+					// SubProcess is collapsed - resize to previously
+					// expanded size or minimum size such that all children
+					// are visible
+					// NOTE: children tasks will be set visible in LayoutExpandableActivityFeature
 
-						IDimension newSize = FeatureSupport.getExpandedSize(containerShape);
-						int newWidth = newSize.getWidth();
-						int newHeight = newSize.getHeight();
-						int oldWidth = ga.getWidth();
-						int oldHeight = ga.getHeight();
+					IDimension newSize = FeatureSupport.getExpandedSize(containerShape);
+					int newWidth = newSize.getWidth();
+					int newHeight = newSize.getHeight();
+					int oldWidth = ga.getWidth();
+					int oldHeight = ga.getHeight();
 
-						ResizeShapeContext resizeContext = new ResizeShapeContext(containerShape);
-						resizeContext.setWidth(newWidth);
-						resizeContext.setHeight(newHeight);
-						// don't set new position yet - this messes up the ResizeExpandableActivityFeature's
-						// calculation of where to position child elements relative to previous parent's
-						// location.
-						resizeContext.setX(ga.getX());
-						resizeContext.setY(ga.getY());
-						resizeContext.setWidth(newWidth);
-						resizeContext.setHeight(newHeight);
+					ResizeShapeContext resizeContext = new ResizeShapeContext(containerShape);
+					resizeContext.setWidth(newWidth);
+					resizeContext.setHeight(newHeight);
+					// don't set new position yet - this messes up the ResizeExpandableActivityFeature's
+					// calculation of where to position child elements relative to previous parent's
+					// location.
+					int newX = ga.getX() + oldWidth/2 - newWidth/2;
+					int newY = ga.getY() + oldHeight/2 - newHeight/2;
+					resizeContext.setX(newX);
+					resizeContext.setY(newY);
+					resizeContext.setWidth(newWidth);
+					resizeContext.setHeight(newHeight);
 
-						IResizeShapeFeature resizeFeature = getFeatureProvider().getResizeShapeFeature(resizeContext);
-						resizeFeature.resizeShape(resizeContext);
+					// The layout feature gets called immediately after resize,
+					// so we need to let it know that this expandable activity is now expanded
+					// Note that we can't simply set the BPMNShape.isExpanded attribute here
+					// because the resize feature needs to know the current state
+					FeatureSupport.setElementExpanded(containerShape, true);
+					
+					IResizeShapeFeature resizeFeature = getFeatureProvider().getResizeShapeFeature(resizeContext);
+					resizeFeature.resizeShape(resizeContext);
 
-						// Now set new position
-						newWidth = resizeContext.getWidth();
-						newHeight = resizeContext.getHeight();
-						int newX = ga.getX() + oldWidth/2 - newWidth/2;
-						int newY = ga.getY() + oldHeight/2 - newHeight/2;
-						if (newX!=ga.getX() || newY!=ga.getY()) {
-							MoveShapeContext moveContext = new MoveShapeContext(containerShape);
-							moveContext.setDeltaX(oldWidth/2 - newWidth/2);
-							moveContext.setDeltaY(oldHeight/2 - newHeight/2);
-							moveContext.setSourceContainer(containerShape.getContainer());
-							moveContext.setTargetContainer(containerShape.getContainer());
-							moveContext.setLocation(newX, newY);
-							IMoveShapeFeature moveFeature = getFeatureProvider().getMoveShapeFeature(moveContext);
-							moveFeature.moveShape(moveContext);
-						}
-						
-						UpdateContext updateContext = new UpdateContext(containerShape);
-						IUpdateFeature updateFeature = getFeatureProvider().getUpdateFeature(updateContext);
-						updateFeature.update(updateContext);
-						
-						LayoutContext layoutContext = new LayoutContext(containerShape);
-						getFeatureProvider().layoutIfPossible(layoutContext);
-						
-						List<ContainerShape> children = new ArrayList<ContainerShape>();
-						for (PictogramElement pe : containerShape.getChildren()) {
-							if (pe instanceof ContainerShape && FeatureSupport.hasBPMNShape(pe)) {
-								children.add((ContainerShape)pe);
-							}
-						}
-						for (ContainerShape s : children) {
-							layoutContext = new LayoutContext(s);
-							getFeatureProvider().layoutIfPossible(layoutContext);
-						}
-						
-						// layout the incoming and outgoing connections
-						FeatureSupport.updateConnections(getFeatureProvider(), FeatureSupport.getConnections(containerShape), true);
+					bpmnShape.setIsExpanded(true);
+
+					// Now set new position
+					newWidth = resizeContext.getWidth();
+					newHeight = resizeContext.getHeight();
+					if (newX!=ga.getX() || newY!=ga.getY()) {
+						MoveShapeContext moveContext = new MoveShapeContext(containerShape);
+						moveContext.setDeltaX(oldWidth/2 - newWidth/2);
+						moveContext.setDeltaY(oldHeight/2 - newHeight/2);
+						moveContext.setSourceContainer(containerShape.getContainer());
+						moveContext.setTargetContainer(containerShape.getContainer());
+						moveContext.setLocation(newX, newY);
+						IMoveShapeFeature moveFeature = getFeatureProvider().getMoveShapeFeature(moveContext);
+						moveFeature.moveShape(moveContext);
 					}
+
+					UpdateContext updateContext = new UpdateContext(containerShape);
+					updateContext.putProperty(GraphitiConstants.FORCE_UPDATE_ALL, Boolean.TRUE);
+					IUpdateFeature updateFeature = getFeatureProvider().getUpdateFeature(updateContext);
+					updateFeature.update(updateContext);
+					
+					LayoutContext layoutContext = new LayoutContext(containerShape);
+					getFeatureProvider().layoutIfPossible(layoutContext);
+					
+					List<ContainerShape> children = new ArrayList<ContainerShape>();
+					for (PictogramElement pe : containerShape.getChildren()) {
+						if (pe instanceof ContainerShape && FeatureSupport.hasBPMNShape(pe)) {
+							children.add((ContainerShape)pe);
+						}
+					}
+					for (ContainerShape s : children) {
+						layoutContext = new LayoutContext(s);
+						getFeatureProvider().layoutIfPossible(layoutContext);
+					}
+					
+					// layout the incoming and outgoing connections
+					FeatureSupport.updateConnections(getFeatureProvider(), FeatureSupport.getConnections(containerShape), true);
+					
+					hasDoneChanges = true;
 					
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -185,4 +195,10 @@ public class ExpandFlowNodeFeature extends ShowDiagramPageFeature {
 			}
 		}
 	}
+
+	@Override
+	public boolean hasDoneChanges() {
+		return hasDoneChanges;
+	}
+	
 }

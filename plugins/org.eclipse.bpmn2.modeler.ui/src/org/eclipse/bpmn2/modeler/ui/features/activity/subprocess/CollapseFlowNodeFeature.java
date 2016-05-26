@@ -18,6 +18,7 @@ import org.eclipse.bpmn2.di.BPMNDiagram;
 import org.eclipse.bpmn2.di.BPMNShape;
 import org.eclipse.bpmn2.modeler.core.di.DIUtils;
 import org.eclipse.bpmn2.modeler.core.features.AbstractBpmn2CustomFeature;
+import org.eclipse.bpmn2.modeler.core.features.GraphitiConstants;
 import org.eclipse.bpmn2.modeler.core.utils.BusinessObjectUtil;
 import org.eclipse.bpmn2.modeler.core.utils.FeatureSupport;
 import org.eclipse.bpmn2.modeler.ui.ImageProvider;
@@ -34,6 +35,8 @@ import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 
 public class CollapseFlowNodeFeature extends AbstractBpmn2CustomFeature {
+
+	private boolean hasDoneChanges = false;
 
 	public CollapseFlowNodeFeature(IFeatureProvider fp) {
 		super(fp);
@@ -91,8 +94,6 @@ public class CollapseFlowNodeFeature extends AbstractBpmn2CustomFeature {
 						// collapsed size or standard Task size
 						// NOTE: children tasks will be set not-visible in LayoutExpandableActivityFeature
 						
-						bpmnShape.setIsExpanded(false);
-
 						IDimension newSize = FeatureSupport.getCollapsedSize(containerShape);
 						int newWidth = newSize.getWidth();
 						int newHeight = newSize.getHeight();
@@ -100,17 +101,20 @@ public class CollapseFlowNodeFeature extends AbstractBpmn2CustomFeature {
 						int oldHeight = ga.getHeight();
 
 						ResizeShapeContext resizeContext = new ResizeShapeContext(containerShape);
-						resizeContext.setWidth(newWidth);
-						resizeContext.setHeight(newHeight);
 						resizeContext.setX(ga.getX() + oldWidth/2 - newWidth/2);
 						resizeContext.setY(ga.getY() + oldHeight/2 - newHeight/2);
 						resizeContext.setWidth(newWidth);
 						resizeContext.setHeight(newHeight);
 
+						FeatureSupport.setElementExpanded(containerShape, false);
+						
 						IResizeShapeFeature resizeFeature = getFeatureProvider().getResizeShapeFeature(resizeContext);
 						resizeFeature.resizeShape(resizeContext);
 						
+						bpmnShape.setIsExpanded(false);
+
 						UpdateContext updateContext = new UpdateContext(containerShape);
+						updateContext.putProperty(GraphitiConstants.FORCE_UPDATE_ALL, Boolean.TRUE);
 						IUpdateFeature updateFeature = getFeatureProvider().getUpdateFeature(updateContext);
 						updateFeature.update(updateContext);
 						
@@ -120,11 +124,18 @@ public class CollapseFlowNodeFeature extends AbstractBpmn2CustomFeature {
 						getDiagramEditor().selectPictogramElements(new PictogramElement[] {});
 					}
 					
+					hasDoneChanges = true;
+
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 		}
+	}
+
+	@Override
+	public boolean hasDoneChanges() {
+		return hasDoneChanges;
 	}
 }

@@ -98,6 +98,8 @@ public class UpdateExpandableActivityFeature extends AbstractUpdateBaseElementFe
 		boolean isExpanded = false;
 		
 		isExpanded = FeatureSupport.isElementExpanded(subprocess);
+		FeatureSupport.setContainerChildrenVisible(getFeatureProvider(), containerShape, isExpanded);
+
 		FeatureSupport.setPropertyValue(pe, GraphitiConstants.TRIGGERED_BY_EVENT, Boolean.toString(subprocess.isTriggeredByEvent()));
 		FeatureSupport.setElementExpanded(pe, isExpanded);
 

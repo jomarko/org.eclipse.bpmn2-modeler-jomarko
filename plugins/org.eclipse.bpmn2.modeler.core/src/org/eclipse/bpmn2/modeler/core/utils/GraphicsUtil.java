@@ -247,6 +247,16 @@ public class GraphicsUtil {
 		return GraphicsUtil.intersects(shape1, x2, y2, w2, h2);
 	}
 
+	public static boolean intersects(Shape shape1, Shape shape2, int space) {
+		ILayoutService layoutService = Graphiti.getLayoutService();
+		ILocation loc2 = layoutService.getLocationRelativeToDiagram(shape2);
+		int x2 = loc2.getX() - space;
+		int y2 = loc2.getY() - space;
+		int w2 = ShapeDecoratorUtil.getShapeWidth(shape2) + 2*space;
+		int h2 = ShapeDecoratorUtil.getShapeHeight(shape2) + 2*space;
+		return GraphicsUtil.intersects(shape1, x2, y2, w2, h2);
+	}
+
 	public static boolean intersects(Shape shape1, int x2, int y2, int w2, int h2) {
 		ILayoutService layoutService = Graphiti.getLayoutService();
 		ILocation loc1 = layoutService.getLocationRelativeToDiagram(shape1);

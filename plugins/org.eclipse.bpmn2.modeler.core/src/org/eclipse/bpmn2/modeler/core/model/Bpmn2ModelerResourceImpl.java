@@ -40,6 +40,7 @@ import org.eclipse.bpmn2.Lane;
 import org.eclipse.bpmn2.Participant;
 import org.eclipse.bpmn2.Process;
 import org.eclipse.bpmn2.RootElement;
+import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.bpmn2.di.BPMNDiagram;
 import org.eclipse.bpmn2.di.BPMNEdge;
 import org.eclipse.bpmn2.di.BPMNLabel;
@@ -59,6 +60,7 @@ import org.eclipse.bpmn2.modeler.core.preferences.Bpmn2Preferences;
 import org.eclipse.bpmn2.modeler.core.runtime.TargetRuntime;
 import org.eclipse.bpmn2.modeler.core.runtime.TargetRuntimeAdapter;
 import org.eclipse.bpmn2.modeler.core.runtime.TypeLanguageDescriptor;
+import org.eclipse.bpmn2.modeler.core.utils.FeatureSupport;
 import org.eclipse.bpmn2.modeler.core.utils.ImportUtil;
 import org.eclipse.bpmn2.modeler.core.utils.ModelUtil;
 import org.eclipse.bpmn2.modeler.core.utils.NamespaceUtil;
@@ -1101,11 +1103,17 @@ public class Bpmn2ModelerResourceImpl extends Bpmn2ResourceImpl {
         
 		@Override
         protected boolean shouldSaveFeature(EObject o, EStructuralFeature f) {
-            if (o instanceof BPMNShape && f==BpmnDiPackage.eINSTANCE.getBPMNShape_IsHorizontal()) {
+			if (o instanceof BPMNShape) {
             	BPMNShape s = (BPMNShape)o;
-            	if (s.getBpmnElement() instanceof Lane || s.getBpmnElement() instanceof Participant)
-            		return true;
-            }
+	            if (f==BpmnDiPackage.eINSTANCE.getBPMNShape_IsExpanded()) {
+	            	if (FeatureSupport.isExpandableElement(s.getBpmnElement()))
+	            		return true;
+            	}
+	            if (f==BpmnDiPackage.eINSTANCE.getBPMNShape_IsHorizontal()) {
+	            	if (s.getBpmnElement() instanceof Lane || s.getBpmnElement() instanceof Participant)
+	            		return true;
+	            }
+			}
             
             // we also want to store x and y with value zero, would be skipped because of default value otherwise
             if (o instanceof Bounds || o instanceof Point) {

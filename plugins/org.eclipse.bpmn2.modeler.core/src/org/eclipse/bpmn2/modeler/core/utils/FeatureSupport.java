@@ -1509,4 +1509,114 @@ public class FeatureSupport {
 			return minHeight;
 		}
 	}
+
+
+	/**
+	 * Find all shapes in the diagram which can cause a collision. 
+	 *
+	 * @return the list
+	 */
+	public static List<ContainerShape> findAllShapes(ContainerShape container, ContainerShape[] ignoreList) {
+		List<ContainerShape> allShapes = new ArrayList<ContainerShape>();
+		
+		allShapes = new ArrayList<ContainerShape>();
+		
+		// first find all ancestors of source and  target, and their siblings
+		List<ContainerShape> ancestors = new ArrayList<ContainerShape>();
+		List<ContainerShape> shapes = new ArrayList<ContainerShape>();
+		
+		TreeIterator<EObject> iter = container.eAllContents();
+		while (iter.hasNext()) {
+			EObject o = iter.next();
+			if (o instanceof ContainerShape && !(o instanceof Diagram)) {
+				// this is a potential collision shape
+				ContainerShape shape = (ContainerShape)o;
+				BPMNShape bpmnShape = BusinessObjectUtil.getFirstElementOfType(shape, BPMNShape.class);
+				if (bpmnShape==null) {
+					// this shape does not have a visual,
+					// so no collision is possible
+					continue;
+				}
+				if (FeatureSupport.isGroupShape(shape) || FeatureSupport.isLabelShape(shape) ) {
+					// ignore Groups and Labels
+					continue;
+				}
+
+				boolean ignore = false;
+				for (ContainerShape ignoreShape : ignoreList) {
+					if (shape==ignoreShape) {
+						ignore = true;
+					}
+					else {
+						EObject ancestor = ignoreShape.eContainer();
+						while (ancestor!=null) {
+							if (shape==ancestor) {
+								ancestors.add((ContainerShape)ancestor);
+								ignore = true;
+								break;
+							}
+							ancestor = ancestor.eContainer();
+						}
+						ancestor = shape.eContainer();
+						for (ContainerShape is : ignoreList) {
+							if (ancestor==is) {
+								ignore = true;
+								break;
+							}
+							ancestor = ancestor.eContainer();
+						}
+					}
+				}
+				
+				if (!ignore && !shapes.contains(shape)) {
+					shapes.add(shape);
+				}
+			}
+		}
+		
+		for (ContainerShape shape : shapes) {
+			// this is a potential collision shape
+			if (!ancestors.contains(shape)) {
+				boolean ignore = false;
+				// only Lanes can be siblings to other Lanes within a container
+				// which may be either another Lane or a Pool.
+				BaseElement be = BusinessObjectUtil.getFirstBaseElement(shape);
+				if (be instanceof Lane) {
+					EObject ancestor = shape.eContainer();
+					while (!(ancestor instanceof Diagram)) {
+						if (ancestors.contains(ancestor)) {
+							ignore = true;
+							break;
+						}
+						ancestor = ancestor.eContainer();
+					}
+				}
+				// Yet another hack for dealing with imported files.
+				// Here we have a poorly laid out diagram such that
+				// a Pool overlaps another Pool almost completely.
+				// This is an indication that the tool used to create
+				// the file is rendering Pools on separate pages, even
+				// though there is only a single BPMNDiagram.
+				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=463205
+				// for an example of this.
+				if (be instanceof Lane || be instanceof Participant) {
+					for (ContainerShape ancestor : ancestors) {
+						if (GraphicsUtil.intersects(shape, ancestor)) {
+							ignore = true;
+							break;
+						}
+					}
+				}				
+				// check if any ancestors overlaps this Lane or Pool
+				// this is a special case
+				
+				if (!ignore) {
+					allShapes.add(shape);
+				}
+			}
+		}
+
+		GraphicsUtil.dump("All Shapes: ", allShapes); //$NON-NLS-1$
+		return allShapes;
+	}
 }

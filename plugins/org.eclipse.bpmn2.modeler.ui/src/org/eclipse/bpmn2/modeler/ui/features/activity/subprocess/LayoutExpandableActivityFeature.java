@@ -12,9 +12,7 @@
  ******************************************************************************/
 package org.eclipse.bpmn2.modeler.ui.features.activity.subprocess;
 
-import org.eclipse.bpmn2.Activity;
 import org.eclipse.bpmn2.modeler.core.features.activity.LayoutActivityFeature;
-import org.eclipse.bpmn2.modeler.core.utils.BusinessObjectUtil;
 import org.eclipse.bpmn2.modeler.core.utils.FeatureSupport;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ILayoutContext;
@@ -29,9 +27,8 @@ public class LayoutExpandableActivityFeature extends LayoutActivityFeature {
 	@Override
 	public boolean layout(ILayoutContext context) {
 		ContainerShape containerShape = (ContainerShape) context.getPictogramElement();
-		Activity activity = BusinessObjectUtil.getFirstElementOfType(containerShape, Activity.class);
 		try {
-			boolean setChildrenVisible = FeatureSupport.isElementExpanded(activity);
+			boolean setChildrenVisible = FeatureSupport.isElementExpanded(containerShape);
 			FeatureSupport.setContainerChildrenVisible(getFeatureProvider(), containerShape, setChildrenVisible);
 		} catch (Exception e) {
 			// It's OK, I've played a programmer before...

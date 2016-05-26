@@ -206,6 +206,9 @@ public class DefaultConnectionRouter extends AbstractConnectionRouter {
 					// ignore Groups and Labels
 					continue;
 				}
+				if (!shape.isVisible()) {
+					continue;
+				}
 
 				boolean ignore = false;
 				EObject ancestor = source.eContainer();

@@ -130,7 +130,8 @@ public class ResizeExpandableActivityFeature extends DefaultResizeBPMNShapeFeatu
 					FeatureSupport.updateCollapsedSize(containerShape);
 			}
 
-			moveNeighborShapes(containerShape, containerShapeCenter);
+			List<ContainerShape> alreadyMoved = new ArrayList<ContainerShape>();
+			moveNeighborShapes(containerShape, containerShapeCenter, alreadyMoved);
 			
 		} catch (Exception e) {
 			Activator.logError(e);
@@ -139,7 +140,7 @@ public class ResizeExpandableActivityFeature extends DefaultResizeBPMNShapeFeatu
 		FeatureSupport.updateConnections(getFeatureProvider(), movedChildren);
 	}
 	
-	private void moveNeighborShapes(ContainerShape movedShape, Point movedShapeCenter) {
+	private void moveNeighborShapes(ContainerShape movedShape, Point movedShapeCenter, List<ContainerShape> alreadyMoved) {
 		
 		List<ContainerShape> movedShapes = new ArrayList<ContainerShape>();
 		
@@ -203,8 +204,11 @@ public class ResizeExpandableActivityFeature extends DefaultResizeBPMNShapeFeatu
 		}
 		
 		for (ContainerShape shape : movedShapes) {
-			moveNeighborShapes(shape, movedShapeCenter);
-			FeatureSupport.updateConnections(getFeatureProvider(), shape);
+			if (!alreadyMoved.contains(shape)) {
+				alreadyMoved.add(shape);
+				moveNeighborShapes(shape, movedShapeCenter, alreadyMoved);
+				FeatureSupport.updateConnections(getFeatureProvider(), shape);
+			}
 		}
 	}
 }

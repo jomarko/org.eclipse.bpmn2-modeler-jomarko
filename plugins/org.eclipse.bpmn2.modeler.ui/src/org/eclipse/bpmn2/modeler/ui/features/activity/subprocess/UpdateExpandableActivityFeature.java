@@ -102,6 +102,7 @@ public class UpdateExpandableActivityFeature extends AbstractUpdateBaseElementFe
 
 		FeatureSupport.setPropertyValue(pe, GraphitiConstants.TRIGGERED_BY_EVENT, Boolean.toString(subprocess.isTriggeredByEvent()));
 		FeatureSupport.setElementExpanded(pe, isExpanded);
+		FeatureSupport.setElementExpanded(subprocess, isExpanded);
 
 		GraphicsAlgorithm rectangle = Graphiti.getPeService()
 		        .getAllContainedPictogramElements(pe).iterator().next()

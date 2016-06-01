@@ -1281,7 +1281,12 @@ public class FeatureSupport {
 			BPMNDiagram bpmnDiagram = DIUtils.findBPMNDiagram(be);
 			// otherwise check the "isExpanded" state of the BPMNShape element.
 			BPMNShape bpmnShape = DIUtils.findBPMNShape(be);
-			if (bpmnShape!=null && bpmnDiagram==null) {
+			if (bpmnShape!=null) {
+				if (bpmnDiagram!=null) {
+					// this container has its contents on another
+					// diagram page, so always set it as "collapse"
+					isExpanded = false;
+				}
 				bpmnShape.setIsExpanded(isExpanded);
 			}
 		}

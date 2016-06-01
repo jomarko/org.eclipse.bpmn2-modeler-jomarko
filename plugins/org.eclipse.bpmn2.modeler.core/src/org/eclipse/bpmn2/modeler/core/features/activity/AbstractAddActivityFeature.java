@@ -14,6 +14,7 @@ package org.eclipse.bpmn2.modeler.core.features.activity;
 
 
 import org.eclipse.bpmn2.Activity;
+import org.eclipse.bpmn2.di.BPMNShape;
 import org.eclipse.bpmn2.modeler.core.features.AbstractBpmn2AddFeature;
 import org.eclipse.bpmn2.modeler.core.features.GraphitiConstants;
 import org.eclipse.bpmn2.modeler.core.features.activity.UpdateActivityLoopAndMultiInstanceMarkerFeature.LoopCharacteristicType;
@@ -90,7 +91,13 @@ public abstract class AbstractAddActivityFeature<T extends Activity>
 		Shape rectShape = ShapeDecoratorUtil.createActivityBorder(containerShape, businessObject);
 		
 		boolean isImport = context.getProperty(GraphitiConstants.IMPORT_PROPERTY) != null;
-		createDIShape(containerShape, businessObject, !isImport);
+		BPMNShape bpmnShape = createDIShape(containerShape, businessObject, !isImport);
+		if (!isImport) {
+			// if this is an expandable shape and it is being created interactively,
+			// not during DIImport, then always set its "is expanded" DI attribute.
+			// See AbstractCreateExpandableFlowNodeFeature.create(ICreateContext).
+			bpmnShape.setIsExpanded(true);
+		}
 
 		peService.setPropertyValue(containerShape, GraphitiConstants.IS_COMPENSATE_PROPERTY, Boolean.toString(false));
 		peService.setPropertyValue(containerShape, GraphitiConstants.IS_LOOP_OR_MULTI_INSTANCE, LoopCharacteristicType.NULL.getName());

@@ -454,7 +454,12 @@ public abstract class AbstractDetailComposite extends ListAndDetailCompositeBase
 			else if (String.class.equals(eTypeClass)) {
 				ObjectEditor editor;
 				if (attribute.getName().equals("id")) { //$NON-NLS-1$
-					editor = new IDEditor(this,object,attribute);
+					if (getPreferences().getShowAdvancedPropertiesTab())
+						editor = new IDEditor(this,object,attribute);
+					else {
+						editor = new TextObjectEditor(this,object,attribute);
+						editor.setEditable(false);
+					}
 				}
 				else {
 					editor = new TextObjectEditor(this,object,attribute);

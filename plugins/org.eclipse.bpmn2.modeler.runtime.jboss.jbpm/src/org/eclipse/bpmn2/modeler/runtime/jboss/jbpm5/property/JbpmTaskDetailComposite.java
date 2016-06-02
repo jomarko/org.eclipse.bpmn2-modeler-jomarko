@@ -202,57 +202,9 @@ public class JbpmTaskDetailComposite extends JbpmActivityDetailComposite {
 				final String name = property.getFirstStringValue();
 				// the input parameter
 				ItemAwareElement parameter = createInputOutputParameter(task, ioSpec, name, true);
-
-				// the DataInputAssociation
-//				DataAssociation association = null;
-//				for (DataInput di : ioSpec.getDataInputs()) {
-//					if (name.equals(di.getName())) {
-//						// this is the one!
-//						parameter = di;
-//						for (DataAssociation da : task.getDataInputAssociations()) {
-//							if (da.getTargetRef() == di) {
-//								association = da;
-//								break;
-//							}
-//						}
-//						break;
-//					}
-//				}
-				
-				// create the DataInput element (the parameter) if needed
-//				if (parameter==null) {
-//                    ItemDefinition itemDef = createModelObject(ItemDefinition.class);
-//                    itemDef.setItemKind(ItemKind.INFORMATION);
-//                    itemDef.setStructureRef( ModelUtil.createStringWrapper("Object") ); //$NON-NLS-1$
-//                    InsertionAdapter.add(definitions,
-//                            PACKAGE.getDefinitions_RootElements(),
-//                            itemDef);
-//                    
-//					parameter = createModelObject(DataInput.class);
-//					parameter.setName(name);
-//					parameter.setItemSubjectRef(itemDef);
-//					InsertionAdapter.add(ioSpec,
-//							PACKAGE.getInputOutputSpecification_DataInputs(),
-//							parameter);
-//					
-//					// create the InputSet if needed
-//					InputSet inputSet = null;
-//					if (ioSpec.getInputSets().size()==0) {
-//						inputSet = createModelObject(InputSet.class);
-//						InsertionAdapter.add(ioSpec,
-//								PACKAGE.getInputOutputSpecification_InputSets(),
-//								inputSet);
-//					}
-//					else
-//						inputSet = ioSpec.getInputSets().get(0);
-//					// add the parameter to the InputSet also
-//					InsertionAdapter.add(inputSet,
-//							PACKAGE.getInputSet_DataInputRefs(),
-//							parameter);
-//				}
 				
 				// create a read-only text field and object editor button for this parameter
-				ReadonlyTextObjectEditor editor = new DataInputOutputEditor(task, parameter);
+				DataInputOutputEditor editor = new DataInputOutputEditor(task, parameter);
 				editor.createControl(getAttributesParent(),ModelUtil.toCanonicalString(name));
 			}
 			
@@ -265,7 +217,7 @@ public class JbpmTaskDetailComposite extends JbpmActivityDetailComposite {
 				ItemAwareElement parameter = createInputOutputParameter(task, ioSpec, name, false);
 				
 				// create a read-only text field and object editor button for this parameter
-				ReadonlyTextObjectEditor editor = new DataInputOutputEditor(task, parameter);
+				DataInputOutputEditor editor = new DataInputOutputEditor(task, parameter);
 				editor.createControl(getAttributesParent(),ModelUtil.toCanonicalString(name));
 			}
 		}

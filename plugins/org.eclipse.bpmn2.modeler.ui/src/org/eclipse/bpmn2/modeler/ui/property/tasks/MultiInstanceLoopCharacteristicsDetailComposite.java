@@ -10,10 +10,15 @@
  *******************************************************************************/
 package org.eclipse.bpmn2.modeler.ui.property.tasks;
 
+import java.util.Hashtable;
+import java.util.Map.Entry;
+
 import org.eclipse.bpmn2.Activity;
 import org.eclipse.bpmn2.Bpmn2Package;
 import org.eclipse.bpmn2.DataInput;
+import org.eclipse.bpmn2.DataInputAssociation;
 import org.eclipse.bpmn2.DataOutput;
+import org.eclipse.bpmn2.DataOutputAssociation;
 import org.eclipse.bpmn2.Expression;
 import org.eclipse.bpmn2.FormalExpression;
 import org.eclipse.bpmn2.InputOutputSpecification;
@@ -655,6 +660,27 @@ public class MultiInstanceLoopCharacteristicsDetailComposite extends DefaultDeta
 								protected boolean canCreateNew() {
 									return false;
 								}
+
+								@Override
+								protected Hashtable<String, Object> getChoiceOfValues(EObject object, EStructuralFeature feature) {
+									Hashtable<String, Object> choices = super.getChoiceOfValues(object, feature);
+									// remove the loop instance parameter from the loop collections list
+									Activity activity = (Activity) lc.eContainer();
+									ItemAwareElement input = null;
+									for (DataInputAssociation dia : activity.getDataInputAssociations()) {
+										if (dia.getSourceRef().size()>0 && dia.getSourceRef().get(0)==lc.getInputDataItem()) {
+											input = dia.getTargetRef();
+											break;
+										}
+									}
+									for (Entry<String, Object> e : choices.entrySet()) {
+										if (e.getValue()==input) {
+											choices.remove(e.getKey());
+											break;
+										}
+									}
+									return choices;
+								}
 							};
 							editor.createControl(getAttributesParent(), Messages.MultiInstanceLoopCharacteristicsDetailComposite_Input_Data_Label);
 
@@ -684,6 +710,27 @@ public class MultiInstanceLoopCharacteristicsDetailComposite extends DefaultDeta
 								@Override
 								protected boolean canCreateNew() {
 									return false;
+								}
+
+								@Override
+								protected Hashtable<String, Object> getChoiceOfValues(EObject object, EStructuralFeature feature) {
+									Hashtable<String, Object> choices = super.getChoiceOfValues(object, feature);
+									// remove the loop instance parameter from the loop collections list
+									Activity activity = (Activity) lc.eContainer();
+									ItemAwareElement output = null;
+									for (DataOutputAssociation doa : activity.getDataOutputAssociations()) {
+										if (doa.getSourceRef().size()>0 && doa.getTargetRef()==lc.getOutputDataItem()) {
+											output = doa.getSourceRef().get(0);
+											break;
+										}
+									}
+									for (Entry<String, Object> e : choices.entrySet()) {
+										if (e.getValue()==output) {
+											choices.remove(e.getKey());
+											break;
+										}
+									}
+									return choices;
 								}
 							};
 							editor.createControl(getAttributesParent(), Messages.MultiInstanceLoopCharacteristicsDetailComposite_Output_Data_Label);

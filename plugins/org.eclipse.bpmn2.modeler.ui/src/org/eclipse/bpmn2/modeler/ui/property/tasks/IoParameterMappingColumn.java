@@ -79,10 +79,12 @@ public class IoParameterMappingColumn extends TableColumn {
 					for ( Assignment assign : da.getAssignment()) {
 						FormalExpression expr  = getTargetExpression(da, assign);
 						String body = ExtendedPropertiesProvider.getTextValue(expr);
-						if (text2==null)
-							text2 = "\"" + body + "\""; //$NON-NLS-1$ //$NON-NLS-2$
-						else
-							text2 += ",\n" + body; //$NON-NLS-1$
+						if (body!=null && !body.isEmpty()) {
+							if (text2==null)
+								text2 = "\"" + body + "\""; //$NON-NLS-1$ //$NON-NLS-2$
+							else
+								text2 += ",\n" + body; //$NON-NLS-1$
+						}
 					}
 					if (text==null)
 						text = text2;

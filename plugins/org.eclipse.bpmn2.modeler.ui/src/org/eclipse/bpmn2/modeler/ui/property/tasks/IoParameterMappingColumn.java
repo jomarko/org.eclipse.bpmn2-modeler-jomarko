@@ -80,6 +80,7 @@ public class IoParameterMappingColumn extends TableColumn {
 						FormalExpression expr  = getTargetExpression(da, assign);
 						String body = ExtendedPropertiesProvider.getTextValue(expr);
 						if (body!=null && !body.isEmpty()) {
+							body = body.replaceAll("\n", "\\\\n");
 							if (text2==null)
 								text2 = "\"" + body + "\""; //$NON-NLS-1$ //$NON-NLS-2$
 							else

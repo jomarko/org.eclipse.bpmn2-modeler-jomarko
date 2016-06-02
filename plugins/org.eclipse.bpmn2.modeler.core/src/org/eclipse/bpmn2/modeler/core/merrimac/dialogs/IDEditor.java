@@ -49,7 +49,6 @@ public class IDEditor extends TextAndButtonObjectEditor {
 	protected void buttonClicked(int buttonId) {
 		// Default button was clicked: open a text editor and allow editing of object ID
 		String text = getText();
-		int index = text==null ? -1 : text.indexOf(":"); //$NON-NLS-1$
 		
 		IInputValidator validator = new IInputValidator() {
 			@Override

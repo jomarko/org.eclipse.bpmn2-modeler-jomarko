@@ -45,6 +45,7 @@ import org.eclipse.bpmn2.modeler.core.merrimac.clad.IPropertiesCompositeFactory;
 import org.eclipse.bpmn2.modeler.core.merrimac.clad.ListCompositeColumnProvider;
 import org.eclipse.bpmn2.modeler.core.merrimac.clad.ListCompositeContentProvider;
 import org.eclipse.bpmn2.modeler.core.merrimac.clad.TableColumn;
+import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.ButtonObjectEditor;
 import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.ObjectEditingDialog;
 import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.ReadonlyTextObjectEditor;
 import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.TextObjectEditor;
@@ -52,6 +53,7 @@ import org.eclipse.bpmn2.modeler.core.runtime.ModelExtensionDescriptor;
 import org.eclipse.bpmn2.modeler.core.runtime.ModelExtensionDescriptor.Property;
 import org.eclipse.bpmn2.modeler.core.runtime.TargetRuntime;
 import org.eclipse.bpmn2.modeler.core.utils.ModelUtil;
+import org.eclipse.bpmn2.modeler.runtime.jboss.jbpm5.features.JbpmCustomTaskFeatureContainer;
 import org.eclipse.bpmn2.modeler.ui.property.tasks.IoParameterMappingColumn;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
@@ -157,6 +159,20 @@ public class JbpmTaskDetailComposite extends JbpmActivityDetailComposite {
 	 */
 	protected void createInputParameterBindings(final Task task) {
 		
+		// Does the WID for this Task define a Work Item Editor dialog?
+		// If so, do not display the WID parameters in this Property tab.
+		if (JbpmCustomTaskFeatureContainer.getWorkItemEditor(task)!=null) {
+			// TODO:
+			// 1. create a New Work Item Editor wizard that copies the required
+			// java interfaces and a sample implementation into the user's
+			// java project.
+			// 2. hook the ButtonObjectEditor into an action that pops up
+			// the Work Item Editor.
+			ButtonObjectEditor button = new ButtonObjectEditor(this, task, null);
+			button.createControl(this.getAttributesParent(), "Edit Work Item Parameters");
+			return;
+		}
+    	
 		// Get the Model Extension Descriptor for this Custom Task.
 		// This will contain the Data Inputs and Outputs that were
 		// defined for the Custom Task either in the plugin.xml

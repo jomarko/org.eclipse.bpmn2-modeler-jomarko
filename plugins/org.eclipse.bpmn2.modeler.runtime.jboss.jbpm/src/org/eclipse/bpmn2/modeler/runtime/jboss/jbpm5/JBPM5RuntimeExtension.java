@@ -120,10 +120,12 @@ public class JBPM5RuntimeExtension implements IBpmn2RuntimeExtension {
 	}
 
 	public WorkItemDefinition getWorkItemDefinition(String taskName) {
-		List<WorkItemDefinition> wids = getWorkItemDefinitions();
-		for (WorkItemDefinition wid : wids) {
-			if (taskName.equals(wid.getName())) {
-				return wid;
+		if (taskName!=null && !taskName.isEmpty()) {
+			List<WorkItemDefinition> wids = getWorkItemDefinitions();
+			for (WorkItemDefinition wid : wids) {
+				if (taskName.equals(wid.getName())) {
+					return wid;
+				}
 			}
 		}
 		return null;

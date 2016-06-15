@@ -765,6 +765,7 @@ public class Bpmn2ModelerResourceImpl extends Bpmn2ResourceImpl {
 					itemDef.setImport(imp);
 				}
 			}
+			/* it's already too late at this point to identify targetNamespace - see createDocumentRoot()
             else if (obj instanceof Definitions) {
             	// Fetch the targetNamespace from Definitions object:
             	// this is where we allow the TargetRuntime extension to provide
@@ -788,9 +789,55 @@ public class Bpmn2ModelerResourceImpl extends Bpmn2ResourceImpl {
 				((Bpmn2ModelerXmlHelper)helper).initializeTargetRuntime(targetNamespace);
 
             }
+            */
 
 		}
-
+		
+		protected EObject createDocumentRoot(String prefix, String uri, String name, EFactory eFactory, boolean top) {
+        	// Fetch the targetNamespace from DocumentRoot (<definitions>) object:
+        	// this is where we allow the TargetRuntime extension to provide
+        	// its own targetNamespace if the file doesn't define one, by overriding
+			// the Bpmn2ModelerXmlHandler#getTargetNamespace(Definitions) method.
+        	// The targetNamespace determines the TargetRuntime and therefore
+        	// how the file is handled, since the TargetRuntime may have special
+        	// processing that needs to be done during loading. Therefore,
+        	// it's important that we have a targetNamespace after the <definitions>
+        	// element is parsed, or the remainder of the file may not be processed
+        	// correctly.
+			//
+			// TargetNamespace identification needs to happen very early in the resource
+			// load process, sometime before the first EObject is created by Bpmn2ModelerFactory
+			Definitions definitions = Bpmn2Factory.eINSTANCE.createDefinitions();
+			String tns = null;
+			String xmlns = null;
+			for (int i = 0, size = attribs.getLength(); i < size; ++i) {
+				String attrib = attribs.getQName(i);
+				if (attrib.equals("tns")) {
+					tns = attribs.getValue(i);
+				}
+				else if (attrib.equals("targetNamespace")) {
+					targetNamespace = attribs.getValue(i);
+					definitions.setTargetNamespace(targetNamespace);
+				}
+				else if (attrib.equals(XMLResource.XML_NS)) {
+					xmlns = attribs.getValue(i);
+				}
+			}
+			targetNamespace = getTargetNamespace(definitions);
+			// if targetNamespace is not provided, use "tns" from file
+			if (targetNamespace==null && tns!=null && !tns.isEmpty())
+				targetNamespace = tns;
+			// if that didn't work, try "xmlns"
+			if (targetNamespace==null && xmlns!=null && !xmlns.isEmpty())
+				targetNamespace = xmlns;
+			// if that still didn't work use the default namespace
+			if (targetNamespace==null)
+				targetNamespace = TargetRuntime.getDefaultRuntime().getRuntimeExtension().getTargetNamespace(null);
+			((Bpmn2ModelerXmlHelper)helper).initializeTargetRuntime(targetNamespace);
+			
+			return super.createDocumentRoot(prefix, uri, name, eFactory, top);
+		}
+		  
 		/**
 		 * Overridden to be able to convert ID references in attributes to URIs
 		 * during load. If the reference can't be found by its ID, we'll try a

@@ -202,7 +202,7 @@ public class MultiInstanceLoopCharacteristicsDetailComposite extends DefaultDeta
 				@Override
 				public void handleEvent(Event event) {
 					showCompletionConditionWidgets(getBO().isIsSequential());
-					redrawParent();
+					redrawPage();
 				}
 			});
 		}
@@ -231,7 +231,7 @@ public class MultiInstanceLoopCharacteristicsDetailComposite extends DefaultDeta
 					if (loopCardinalityButton.getSelection()) {
 						showLoopDataInputWidgets(false);
 						showLoopCardinalityWidgets(true);
-						redrawParent();
+						redrawPage();
 					}
 				}
 			});
@@ -244,7 +244,7 @@ public class MultiInstanceLoopCharacteristicsDetailComposite extends DefaultDeta
 					if (loopDataInputButton.getSelection()) {
 						showLoopCardinalityWidgets(false);
 						showLoopDataInputWidgets(true);
-						redrawParent();
+						redrawPage();
 					}
 				}
 			});
@@ -286,7 +286,7 @@ public class MultiInstanceLoopCharacteristicsDetailComposite extends DefaultDeta
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					showLoopDataOutputWidgets(producesOutputButton.getSelection());
-					redrawParent();
+					redrawPage();
 				}
 			});
 	
@@ -521,23 +521,6 @@ public class MultiInstanceLoopCharacteristicsDetailComposite extends DefaultDeta
 			loopDataOutputWidgetsShowing = show;
 		}
 	}
-
-	private void redrawParent() {
-		// this DetailComposite should be sitting in a SashForm created
-		// by a ListComposite. layout this thing first
-		getAttributesParent().layout();
-		layout();
-		// and then search for the DetailComposite that contains the list 
-		Composite parent = getParent();
-		while (parent!=null) {
-			parent = parent.getParent();
-			if (parent instanceof AbstractDetailComposite) {
-				parent.layout();
-				parent.getParent().layout();
-				break;
-			}
-		}
-	}
 	
 	protected void bindAttribute(Composite parent, EObject object, EAttribute attribute, String label) {
 		if (attribute.getName().equals("behavior")) { //$NON-NLS-1$
@@ -594,16 +577,7 @@ public class MultiInstanceLoopCharacteristicsDetailComposite extends DefaultDeta
 							}
 							break;
 						}
-						redrawParent();
-
-//						Display.getDefault().asyncExec( new Runnable() {
-//
-//							@Override
-//							public void run() {
-//								redrawPage();
-//							}
-//							
-//						});
+						redrawPage();
 					}
 					return updated;
 				}

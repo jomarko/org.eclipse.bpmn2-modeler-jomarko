@@ -666,7 +666,7 @@ public class ActivityDetailComposite extends DefaultDetailComposite {
 			if (operationChanged || messageChanged || ioSpec.eContainer()==null)
 				inputSet.getDataInputRefs().add(din);
 			else
-				InsertionAdapter.add(inputSet, Bpmn2Package.eINSTANCE.getInputSet_DataInputRefs(), input);
+				InsertionAdapter.add(inputSet, Bpmn2Package.eINSTANCE.getInputSet_DataInputRefs(), din);
 		}
 		// same thing for DataOutputs
 		List<DataOutput> uncontainedOutputs = new ArrayList<DataOutput>();
@@ -696,7 +696,7 @@ public class ActivityDetailComposite extends DefaultDetailComposite {
 			if (operationChanged || messageChanged || ioSpec.eContainer()==null)
 				outputSet.getDataOutputRefs().add(dout);
 			else
-				InsertionAdapter.add(outputSet, Bpmn2Package.eINSTANCE.getOutputSet_DataOutputRefs(), output);
+				InsertionAdapter.add(outputSet, Bpmn2Package.eINSTANCE.getOutputSet_DataOutputRefs(), dout);
 		}
 
 		// Attach the I/O Spec to the Activity if it is not already contained

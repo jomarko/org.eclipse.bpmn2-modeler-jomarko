@@ -759,22 +759,62 @@ public class DIImport {
 		PictogramElement se = null;
 		PictogramElement te = null;
 
-		// for some reason connectors don't have a common interface
+		/*
+		 * Section 12.2.3.5 of the BPMN2 spec states that a BPMNEdge may provide
+		 * source and target elements, which are:
+		 *  "...optional reference[s] to the edge’s source element if different
+		 *  from the source [or target] inferred from the bpmnElement association."
+		 */
 		if (bpmnElement instanceof MessageFlow ||
 				bpmnElement instanceof SequenceFlow ||
-				bpmnElement instanceof ConversationLink) {
+				bpmnElement instanceof ConversationLink ||
+				bpmnElement instanceof Association) {
 			se = getPictogramElementFromDiagramElement(bpmnEdge.getSourceElement());
 			te = getPictogramElementFromDiagramElement(bpmnEdge.getTargetElement());
+		}
+		
+		// for some reason connectors don't have a common interface
+		if (bpmnElement instanceof MessageFlow) {
+			if (se==null) {
+				source = ((MessageFlow) bpmnElement).getSourceRef();
+				se = elements.get(source);
+			}
+			if (te==null) {
+				target = ((MessageFlow) bpmnElement).getTargetRef();
+				te = elements.get(target);
+			}
+		} else if (bpmnElement instanceof SequenceFlow) {
+			if (se==null) {
+				source = ((SequenceFlow) bpmnElement).getSourceRef();
+				se = elements.get(source);
+			}
+			if (te==null) {
+				target = ((SequenceFlow) bpmnElement).getTargetRef();
+				te = elements.get(target);
+			}
 		} else if (bpmnElement instanceof Association) {
-			se = getPictogramElementFromDiagramElement(bpmnEdge.getSourceElement());
-			te = getPictogramElementFromDiagramElement(bpmnEdge.getTargetElement());
 			if (se==null) {
 				source = ((Association) bpmnElement).getSourceRef();
-				se = getContainerShape((BaseElement)source);
+				se = elements.get(source);
 			}
 			if (te==null) {
 				target = ((Association) bpmnElement).getTargetRef();
+				te = elements.get(target);
+			}
+			if (se==null) {
+				se = getContainerShape((BaseElement)source);
+			}
+			if (te==null) {
 				te = getContainerShape((BaseElement)target);
+			}
+		} else if (bpmnElement instanceof ConversationLink) {
+			if (se==null) {
+				source = ((ConversationLink) bpmnElement).getSourceRef();
+				se = elements.get(source);
+			}
+			if (te==null) {
+				target = ((ConversationLink) bpmnElement).getTargetRef();
+				te = elements.get(target);
 			}
 		} else if (bpmnElement instanceof DataAssociation) {
 			// Data Association allows connections for multiple starting points, we don't support it yet

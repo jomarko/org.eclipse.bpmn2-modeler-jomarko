@@ -53,7 +53,9 @@ public class ProcessValidator extends AbstractBpmn2ElementValidator<Process> {
 			name = (String) object.eGet(feature);
 		}
 		if (name==null || name.isEmpty()) {
-			addStatus(object, "packageName", Status.ERROR, Messages.ProcessConstraint_No_Package_Name, object.getName(), object.getId()); //$NON-NLS-1$
+			// See bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=482967
+			// package name is not required
+//			addStatus(object, "packageName", Status.ERROR, Messages.ProcessConstraint_No_Package_Name, object.getName(), object.getId()); //$NON-NLS-1$
 		}
 		else if (!SyntaxCheckerUtils.isJavaPackageName(name)) {
 			addStatus(object, "packageName", Status.ERROR, Messages.ProcessValidator_Invalid_PackageName, name); //$NON-NLS-1$

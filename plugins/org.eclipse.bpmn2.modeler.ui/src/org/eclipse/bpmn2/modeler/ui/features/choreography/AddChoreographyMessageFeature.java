@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 Red Hat, Inc.
+ * Copyright (c) 2011, 2016 Red Hat, Inc and others.
  *  All rights reserved.
  * This program is made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,6 +7,7 @@
  *
  * Contributors:
  * Red Hat, Inc. - initial API and implementation
+ * Horus Software GmbH	- Bug 497543
  *
  * @author Bob Brodt
  ******************************************************************************/
@@ -181,6 +182,8 @@ public class AddChoreographyMessageFeature extends AbstractCustomFeature {
 				message.setName(oldName);
 			} else {
 				// and existing one
+				
+				EcoreUtil.delete(message);
 				message = result;
 			}
 

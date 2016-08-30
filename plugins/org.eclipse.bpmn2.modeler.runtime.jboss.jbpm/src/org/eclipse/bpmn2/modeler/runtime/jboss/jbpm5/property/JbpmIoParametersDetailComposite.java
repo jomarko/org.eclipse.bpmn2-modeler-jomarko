@@ -89,7 +89,12 @@ public class JbpmIoParametersDetailComposite extends IoParametersDetailComposite
 			name = ((DataOutput)input).getName();
 		else
 			return false;
-		
+		return isCustomTaskIOParameter(input, name);
+	}
+	
+	
+	public static boolean isCustomTaskIOParameter(ItemAwareElement input, String name) {
+
 		Activity activity = findActivity(input);
 		if (activity==null || name==null || name.isEmpty())
 			return false;
@@ -109,7 +114,7 @@ public class JbpmIoParametersDetailComposite extends IoParametersDetailComposite
 				}
 			}
 		}
-		ModelExtensionDescriptor med = rt.getModelExtensionDescriptor(activity);
+		ModelExtensionDescriptor med = rt.getModelExtensionDescriptor(activity, false);
 		if (med!=null) {
 			props = med.getProperties("ioSpecification/dataInputs/name"); //$NON-NLS-1$
 			if (props!=null) {

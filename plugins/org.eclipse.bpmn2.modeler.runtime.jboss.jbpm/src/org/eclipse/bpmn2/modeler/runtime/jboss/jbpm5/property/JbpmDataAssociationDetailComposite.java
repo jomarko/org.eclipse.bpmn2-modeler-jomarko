@@ -13,13 +13,25 @@
 
 package org.eclipse.bpmn2.modeler.runtime.jboss.jbpm5.property;
 
+import java.util.List;
+
 import org.eclipse.bpmn2.Activity;
+import org.eclipse.bpmn2.DataInput;
+import org.eclipse.bpmn2.DataOutput;
+import org.eclipse.bpmn2.InputOutputSpecification;
 import org.eclipse.bpmn2.ItemAwareElement;
 import org.eclipse.bpmn2.modeler.core.adapters.ExtendedPropertiesAdapter;
 import org.eclipse.bpmn2.modeler.core.merrimac.clad.AbstractBpmn2PropertySection;
+import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.ObjectEditor;
+import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.UniqueNameEditor;
+import org.eclipse.bpmn2.modeler.core.utils.ModelUtil;
+import org.eclipse.bpmn2.modeler.core.validation.SyntaxCheckerUtils;
 import org.eclipse.bpmn2.modeler.ui.property.tasks.DataAssociationDetailComposite;
+import org.eclipse.bpmn2.modeler.ui.property.tasks.DataInputOutputDetailComposite;
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Composite;
 
 /**
@@ -41,6 +53,62 @@ public class JbpmDataAssociationDetailComposite extends DataAssociationDetailCom
 	 */
 	public JbpmDataAssociationDetailComposite(Composite parent, int style) {
 		super(parent, style);
+	}
+
+	protected DataInputOutputDetailComposite createDataInputOutputDetailComposite(EObject be, Composite parent, int style) {
+	    return new DataInputOutputDetailComposite(parent, style) {
+	    	@Override
+	    	protected void bindAttribute(Composite parent, EObject object, EAttribute attribute, String label) {
+	    		if ("name".equals(attribute.getName())) { //$NON-NLS-1$
+	    			ObjectEditor editor;
+	    			if (object instanceof DataInput) {
+	    				editor = new UniqueNameEditor<DataInput>(this,(DataInput)object,attribute) {
+	    					@Override
+	    					protected List<DataInput> getEObjectList() {
+	    						InputOutputSpecification iospec = (InputOutputSpecification) object.eContainer();
+	    						return iospec.getDataInputs();
+	    					}
+
+							@Override
+	    					protected String validateName(String name) {
+								return nameValidator((ItemAwareElement)object, name);
+	    					}
+	    				};
+	    			}
+	    			else {
+	    				editor = new UniqueNameEditor<DataOutput>(this,(DataOutput)object,attribute) {
+	    					@Override
+	    					protected List<DataOutput> getEObjectList() {
+	    						InputOutputSpecification iospec = (InputOutputSpecification) object.eContainer();
+	    						return iospec.getDataOutputs();
+	    					}
+
+							@Override
+	    					protected String validateName(String name) {
+								return nameValidator((ItemAwareElement)object, name);
+	    					}
+	    				};
+	    			}
+	    			editor.createControl(parent,label);
+	    		}
+	    		else
+	    			super.bindAttribute(parent, object, attribute, label);
+	    	}
+	    	
+	    	private String nameValidator(ItemAwareElement object, String name) {
+				if (!SyntaxCheckerUtils.isJavaIdentifier(name)) {
+					return Messages.JbpmDataAssociationDetailComposite_Name_Invalid;
+				}
+				if (JbpmIoParametersDetailComposite.isCustomTaskIOParameter(object, name)) {
+					Activity activity = JbpmIoParametersDetailComposite.findActivity(object);
+					String propertyTabLabel = ModelUtil.getLabel(activity);
+					return NLS.bind(Messages.JbpmDataAssociationDetailComposite_Name_Reserved,
+							name, propertyTabLabel);
+				}
+				return null;
+	    		
+	    	}
+	    };
 	}
 
 	@Override

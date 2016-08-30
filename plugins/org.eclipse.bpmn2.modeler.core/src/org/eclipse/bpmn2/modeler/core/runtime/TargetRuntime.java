@@ -960,19 +960,26 @@ public class TargetRuntime extends BaseRuntimeExtensionDescriptor implements IRu
 	}
 
 	public ModelExtensionDescriptor getModelExtensionDescriptor(EObject object) {
+		return getModelExtensionDescriptor(object, true);
+	}
+
+	public ModelExtensionDescriptor getModelExtensionDescriptor(EObject object, boolean checkSuperTypes) {
 		EClass eClass = (EClass) ((object instanceof EClass) ? object : object.eClass());
 		
 		for (ModelExtensionDescriptor md : getModelExtensionDescriptors()) {
 			String type = eClass.getName();
 			if (md.getType().equals(type))
 				return md;
-			for (EClass ec : eClass.getESuperTypes()) {
-				type = ec.getName();
-				if (md.getType().equals(type))
-					return md;
-				ModelExtensionDescriptor md2 = getModelExtensionDescriptor(ec);
-				if (md2!=null)
-					return md2;
+			// added this option to avoid lengthy recursion - this noticeably slows down text entry
+			if (checkSuperTypes) {
+				for (EClass ec : eClass.getESuperTypes()) {
+					type = ec.getName();
+					if (md.getType().equals(type))
+						return md;
+					ModelExtensionDescriptor md2 = getModelExtensionDescriptor(ec);
+					if (md2!=null)
+						return md2;
+				}
 			}
 		}
 		return null;

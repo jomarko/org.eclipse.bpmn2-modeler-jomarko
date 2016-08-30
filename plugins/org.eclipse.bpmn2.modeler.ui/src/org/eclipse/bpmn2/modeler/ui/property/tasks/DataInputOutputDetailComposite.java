@@ -17,9 +17,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.bpmn2.DataAssociation;
+import org.eclipse.bpmn2.DataInput;
+import org.eclipse.bpmn2.DataOutput;
+import org.eclipse.bpmn2.InputOutputSpecification;
 import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.ComboObjectEditor;
 import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.ObjectEditor;
+import org.eclipse.bpmn2.modeler.core.merrimac.dialogs.UniqueNameEditor;
 import org.eclipse.bpmn2.modeler.ui.property.data.ItemAwareElementDetailComposite;
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.swt.widgets.Composite;
@@ -34,6 +39,34 @@ public class DataInputOutputDetailComposite extends ItemAwareElementDetailCompos
 	
 	public Composite getAttributesParent() {
 		return this;
+	}
+
+	@Override
+	protected void bindAttribute(Composite parent, EObject object, EAttribute attribute, String label) {
+		if ("name".equals(attribute.getName())) {
+			ObjectEditor editor;
+			if (object instanceof DataInput) {
+				editor = new UniqueNameEditor<DataInput>(this,(DataInput)object,attribute) {
+					@Override
+					protected List<DataInput> getEObjectList() {
+						InputOutputSpecification iospec = (InputOutputSpecification) object.eContainer();
+						return iospec.getDataInputs();
+					}
+				};
+			}
+			else {
+				editor = new UniqueNameEditor<DataOutput>(this,(DataOutput)object,attribute) {
+					@Override
+					protected List<DataOutput> getEObjectList() {
+						InputOutputSpecification iospec = (InputOutputSpecification) object.eContainer();
+						return iospec.getDataOutputs();
+					}
+				};
+			}
+			editor.createControl(parent,label);
+		}
+		else
+			super.bindAttribute(parent, object, attribute, label);
 	}
 
 	@Override

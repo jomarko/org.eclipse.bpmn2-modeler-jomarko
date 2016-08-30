@@ -13,11 +13,11 @@
 
 package org.eclipse.bpmn2.modeler.core.merrimac.dialogs;
 
-import org.eclipse.bpmn2.Definitions;
+import java.util.Iterator;
+import java.util.List;
+
 import org.eclipse.bpmn2.modeler.core.merrimac.clad.AbstractDetailComposite;
 import org.eclipse.bpmn2.modeler.core.utils.ModelUtil;
-import org.eclipse.bpmn2.modeler.core.validation.SyntaxCheckerUtils;
-import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.jface.dialogs.IInputValidator;
@@ -26,21 +26,38 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * This class implements an object ID popup editor. An input dialog is used to
- * allow editing of object IDs, and a validator ensures that the ID is unique
- * within the entire document.
+ * This class implements an object name string popup editor. An input dialog is
+ * used to prompt the user to enter a new name for an existing EObject. A
+ * validator ensures that the name is unique within a given list of like
+ * EObjects.
+ * 
+ * Subclasses must provide:
+ * <ol>
+ * <li>a list of EObjects whose names should not be duplicated</li>
+ * <li>a validator for the name string, {@code validateName(String)}. This
+ * validator need not be concerned with checking for duplicates, as this is
+ * already done by this class, but it must return an error message string
+ * indicating the error or null if the name is valid.</li>
+ * </ol>
  */
-public class IDEditor extends TextAndButtonObjectEditor {
+abstract public class UniqueNameEditor<T extends EObject> extends TextAndButtonObjectEditor {
 
-	Definitions definitions = null;
-	
 	/**
 	 * @param parent
 	 * @param object
 	 */
-	public IDEditor(AbstractDetailComposite parent, EObject object, EStructuralFeature feature) {
+	public UniqueNameEditor(AbstractDetailComposite parent, T object, EStructuralFeature feature) {
 		super(parent, object, feature);
-		definitions = ModelUtil.getDefinitions(object);
+	}
+	
+	protected abstract List<T> getEObjectList();
+	
+	protected String validateName(String name) {
+		return null;
+	}
+	
+	protected boolean isNullAllowed() {
+		return false;
 	}
 	
 	@Override
@@ -52,21 +69,23 @@ public class IDEditor extends TextAndButtonObjectEditor {
 			@Override
 			public String isValid(String newText) {
 				if (newText==null || newText.isEmpty()) {
-					return Messages.IDEditor_ID_is_Null;
+					if (isNullAllowed())
+						return null;
+					return Messages.UniqueNameEditor_Name_is_Null;
 				}
-				if (!SyntaxCheckerUtils.isQName(newText)) {
-					return Messages.IDEditor_ID_is_Invalid;
-				}
+				String message = validateName(newText);
+				if (message!=null)
+					return message;
+				
 				// check for ID collisions with other objects
-				TreeIterator<EObject> iter = definitions.eAllContents();
+				Iterator<T> iter = getEObjectList().iterator();
 				while (iter.hasNext()) {
 					EObject o = iter.next();
 					if (o!=object) {
-						EStructuralFeature f = o.eClass().getEStructuralFeature("id");
-						if (f!=null && o.eGet(f) instanceof String) {
-							String id = (String)o.eGet(f);
-							if (newText.equals(id)) {
-								return NLS.bind(Messages.IDEditor_Duplicate_ID, getObjectName(o));
+						if (o.eGet(feature) instanceof String) {
+							String name = (String)o.eGet(feature);
+							if (newText.equals(name)) {
+								return NLS.bind(Messages.UniqueNameEditor_Duplicate_Name, newText);
 							}
 						}
 					}
@@ -77,8 +96,8 @@ public class IDEditor extends TextAndButtonObjectEditor {
 
 		InputDialog dialog = new InputDialog(
 				parent.getShell(),
-				Messages.IDEditor_Edit_ID,
-				NLS.bind(Messages.IDEditor_Enter_New_ID_for, getObjectName(object)),
+				Messages.UniqueNameEditor_Edit_Name,
+				NLS.bind(Messages.UniqueNameEditor_Enter_New_Name_for, getObjectName(object)),
 				text,
 				validator);
 		

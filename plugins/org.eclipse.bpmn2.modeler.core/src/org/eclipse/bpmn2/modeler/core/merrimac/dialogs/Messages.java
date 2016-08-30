@@ -28,6 +28,10 @@ public class Messages extends NLS {
 	public static String IDEditor_Enter_New_ID_for;
 	public static String IDEditor_ID_is_Invalid;
 	public static String IDEditor_ID_is_Null;
+	public static String UniqueNameEditor_Duplicate_Name;
+	public static String UniqueNameEditor_Edit_Name;
+	public static String UniqueNameEditor_Enter_New_Name_for;
+	public static String UniqueNameEditor_Name_is_Null;
 	public static String IntObjectEditor_Invalid_Character;
 	public static String JavaVariableNameObjectEditor_Invalid_Character;
 	public static String JavaPackageNameObjectEditor_Invalid_Character;

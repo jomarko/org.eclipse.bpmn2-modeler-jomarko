@@ -265,7 +265,7 @@
 			</releases>
 		</repository>
 
-		<!-- Remove when Web Tools gets a build out for oxygen -->
+		<!-- vvv Remove when Web Tools has a fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=501445 -->
 		<repository>
 			<id>eclipse-wst</id>
 			<url>http://download.eclipse.org/webtools/downloads/drops/R3.9.0/I-latest/repository</url>
@@ -277,6 +277,18 @@
 				<enabled>true</enabled>
 			</releases>
 		</repository>
+		<repository>
+			<id>eclipse-orbit</id>
+			<url>http://download.eclipse.org/tools/orbit/downloads/drops/repository</url>
+			<layout>p2</layout>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+		<!-- ^^^ Remove when Web Tools has a fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=501445 -->
 
 	</repositories>
 
@@ -317,6 +329,24 @@
 					<format>'${BUILD_ALIAS}-v'yyyyMMdd-HHmm'-B${BUILD_NUMBER}'</format>
 				</configuration>
 			</plugin>
+			
+			<!-- vvv Remove when Web Tools has a fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=501445 -->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<configuration>
+					<dependency-resolution>
+						<extraRequirements>
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>javax.wsdl</id>
+								<versionRange>[1.5.0,1.6.0)</versionRange>
+							</requirement>
+						</extraRequirements>
+					</dependency-resolution>
+				</configuration>
+			</plugin>
+			<!-- ^^^ Remove when Web Tools has a fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=501445 -->
 			
 			<plugin>
 				<groupId>org.eclipse.tycho.extras</groupId>

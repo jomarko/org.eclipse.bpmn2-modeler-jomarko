@@ -12,6 +12,7 @@ package org.eclipse.bpmn2.modeler.ui.editor;
 
 import org.eclipse.gef.ContextMenuProvider;
 import org.eclipse.graphiti.ui.editor.DiagramEditorContextMenuProvider;
+import org.eclipse.graphiti.ui.internal.action.RemoveAction;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 
@@ -52,6 +53,14 @@ public class BPMN2EditorDiagramBehavior extends DefaultBPMN2EditorDiagramBehavio
 //				action = getDiagramContainer().getActionRegistry().getAction("show.hide.elements"); //$NON-NLS-1$
 //				action.setText(action.getText());
 //				manager.add(action);
+			}
+
+			@Override
+			protected void addActionToMenuIfAvailable(IMenuManager manager, String actionId, String menuGroup) {
+				// ignore REMOVE action
+				if (actionId.equals(RemoveAction.ACTION_ID))
+					return;
+				super.addActionToMenuIfAvailable(manager, actionId, menuGroup);
 			}
 		};
 	}

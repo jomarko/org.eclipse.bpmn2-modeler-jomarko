@@ -31,6 +31,7 @@ import org.eclipse.bpmn2.DataOutputAssociation;
 import org.eclipse.bpmn2.DataStore;
 import org.eclipse.bpmn2.Definitions;
 import org.eclipse.bpmn2.Event;
+import org.eclipse.bpmn2.FlowNode;
 import org.eclipse.bpmn2.InputSet;
 import org.eclipse.bpmn2.Interface;
 import org.eclipse.bpmn2.ItemAwareElement;
@@ -544,6 +545,22 @@ public class DroolsResourceImpl extends Bpmn2ModelerResourceImpl {
 				}
 			}
 			return value;
+		}
+		
+		  
+		@Override
+		protected void setFeatureValue(EObject object, EStructuralFeature feature, Object value, int position) {
+			// see https://issues.jboss.org/browse/RHBPMS-4318
+			// ignore any attempts to stuff anything other than a FlowNode into the
+			// FlowNodeRefs list! Drools Web Designer uses a brain damaged fork of
+			// BPMN2 metamodel to allow this by making TextAnnotation a subclass of
+			// FlowNode instead of Artifact.
+			if (object.eClass() == Bpmn2Package.eINSTANCE.getLane()
+					&& feature == Bpmn2Package.eINSTANCE.getLane_FlowNodeRefs()
+					&& !(value instanceof FlowNode)) {
+					return;
+			}
+			super.setFeatureValue(object, feature, value, position);
 		}
 		
 		@Override

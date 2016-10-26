@@ -27,7 +27,6 @@ import org.eclipse.bpmn2.di.BPMNShape;
 import org.eclipse.bpmn2.modeler.core.features.CustomShapeFeatureContainer.CreateCustomShapeFeature;
 import org.eclipse.bpmn2.modeler.core.features.GraphitiConstants;
 import org.eclipse.bpmn2.modeler.core.features.IBpmn2CreateFeature;
-import org.eclipse.bpmn2.modeler.core.features.SubMenuCustomFeature;
 import org.eclipse.bpmn2.modeler.core.preferences.Bpmn2Preferences;
 import org.eclipse.bpmn2.modeler.core.preferences.ModelEnablements;
 import org.eclipse.bpmn2.modeler.core.preferences.ShapeStyle;
@@ -68,8 +67,6 @@ import org.eclipse.graphiti.palette.IToolEntry;
 import org.eclipse.graphiti.palette.impl.ObjectCreationToolEntry;
 import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.services.ILayoutService;
-import org.eclipse.graphiti.tb.ContextMenuEntry;
-import org.eclipse.graphiti.tb.IContextMenuEntry;
 import org.eclipse.graphiti.tb.IToolBehaviorProvider;
 import org.eclipse.graphiti.ui.editor.DiagramEditor;
 import org.eclipse.graphiti.ui.internal.util.ui.PopupMenu;
@@ -132,60 +129,7 @@ public abstract class AbstractMorphNodeFeature<T extends FlowNode> extends Abstr
 
 	@Override
 	public boolean canExecute(ICustomContext context) {
-		List<IToolEntry> tools = getTools(context);
-		if (tools.size()==0)
-			return false;
-		String key = GraphitiConstants.CONTEXT_MENU_ENTRY + this.getName();
-		IContextMenuEntry contextMenuEntry = (IContextMenuEntry) context.getProperty(key);
-		if (contextMenuEntry!=null) {
-			if (contextMenuEntry.getChildren().length == 0) {
-				Bpmn2ToolBehaviorProvider toolProvider = getToolProvider();
-				LinkedHashMap<IPaletteCompartmentEntry, ContextMenuEntry> categories = new LinkedHashMap<IPaletteCompartmentEntry, ContextMenuEntry>();
-				ContextMenuEntry cme = null;
-	
-				for (IToolEntry tool : tools) {
-					IPaletteCompartmentEntry ce = toolProvider.getCategory(tool);
-					if (ce!=null) {
-						if (categories.containsKey(ce)) {
-							cme = categories.get(ce);
-						}
-						else {
-							cme = new ContextMenuEntry(this, context);
-							cme.setText(ce.getLabel());
-							categories.put(ce, cme);
-						}
-					}
-				}
-				if (categories.size()>1) {
-					List<ContextMenuEntry> entries = new ArrayList<ContextMenuEntry>();
-					for (IToolEntry tool : tools) {
-						IPaletteCompartmentEntry ce = toolProvider.getCategory(tool);
-						if (ce!=null) {
-							ICreateFeature feature = ((ObjectCreationToolEntry)tool).getCreateFeature();
-							SubMenuCustomFeature submenuFeature = new SubMenuCustomFeature(this, feature);
-							cme = categories.get(ce);
-							ContextMenuEntry e = new ContextMenuEntry(submenuFeature, context);
-							e.setText(tool.getLabel());
-							cme.add(e);
-							if (!entries.contains(cme)) {
-								contextMenuEntry.add(cme);
-								entries.add(cme);
-							}
-						}
-					}
-				}
-				else {
-					for (IToolEntry tool : tools) {
-						ICreateFeature feature = ((ObjectCreationToolEntry)tool).getCreateFeature();
-						SubMenuCustomFeature submenuFeature = new SubMenuCustomFeature(this, feature);
-						cme = new ContextMenuEntry(submenuFeature, context);
-						cme.setText(tool.getLabel());
-						contextMenuEntry.add(cme);
-					}
-				}
-			}
-		}
-		return true;
+		return getTools(context).size()>0;
 	}
 
 	@Override

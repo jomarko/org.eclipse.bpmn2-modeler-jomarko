@@ -10,6 +10,8 @@ sandbox/
 /*.ipr
 /*.iws
 /*.iml
+*.classpath
+*.project
 
 # Repository wide ignore mac DS_Store files
 .DS_Store
